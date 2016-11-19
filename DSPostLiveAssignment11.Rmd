@@ -1,0 +1,104 @@
+---
+title: "DSPostLiveAssignment11_TimeSeries, MSDS 6306 - 405"
+author: "Mariana Llamas-Cendon"
+date: "11/17/2016"
+output: html_document
+---
+
+
+```{r}
+## Load library fpp
+## Load data ukcars
+library(fpp)
+data(ukcars)
+ukcars
+
+## Plot data to explore and identify any evident trend
+plot(ukcars)
+
+```
+
+
+
+##### Plot the time series. Can you identify seasonal fluctuations and/or a trend? 
+
+
+###### From the plot it is evident that the years previous to 1980 experienced a decline in the production of cars in the UK, but from 1980 to 2000 the trend was evidently upward. Nevertheless, we can see some regular patterns that appear to be peaks that would indicate seasonal value of about each year. One could argue that this due to the release of new models. 
+###### Also there is a dip fromm 500 to about 300 in the year 2000 that would need to be investigated further to figure out the situation that cause the sudden drop: if it was due to a bad economy, a recession or other causes that are not evident in the plot or just an error in how the data was gathered. 
+
+##### Use a classical decomposition to calculate the trend-cycle and seasonal indices. 
+```{r}
+## Using decompose we can find the seasonal value. 
+fitd <- decompose(ukcars)
+plot(fitd)
+```
+
+
+
+
+
+
+
+#### Do the results support the graphical interpretation from part (a)? 
+
+
+###### Yes, by using decomposition seasonality becomes more evident. In the observed we can still see a peak a little over the year 2000 that can be considered as an outlier, which I am guessing represents the dip we saw when we first plotted the data, although after decomposing doesn't seem as pronounced. 
+###### Decomposing as it was expected eliminated the beginning values from trend corresponding to Q1, Q2 from 1977; and the last two corresponding to Q4 of 2004, and Q1 of 2005. 
+
+#### Compute and plot the seasonally adjusted data. 
+```{r}
+eeadj <- seasadj(fitd)
+plot(eeadj)
+```
+
+#### Change one observation to be an outlier (e.g., add 500 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier? 
+ 
+```{r}
+ukcars2 <- ukcars
+ukcars2[55] <- ukcars2[55]+500
+plot(ukcars2)
+fitd2 <- decompose(ukcars2)
+```
+###### The effect of the outlier falls on a very specific date, and even though it affects the overall dimension of the data it doesn't really change the trend of the seasonality from the rest of the dates. 
+
+#### Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+```{r}
+ukcars3 <- ukcars
+ukcars3[105] <- ukcars3[105]+500
+plot(ukcars3)
+fitd3 <- decompose(ukcars3)
+```
+###### No, it really doesn't make a difference in this dataset. It is just the magnitude that is affected, but the outlier still having an effect on a particular date (or in this case year), but doesn't really change trends. 
+
+```{r}
+eeadj2 <- seasadj(fitd2)
+plot(eeadj2)
+
+eeadj3 <- seasadj(fitd3)
+plot(eeadj3)
+```
+
+
+
+
+
+###### Readjusting the seasonal data, smooths the highs and lows, and therefore displays a more uniform behavior. 
+
+
+
+```{r}
+ukcarsseas <- stl(ukcars, s.window=5)
+plot(ukcarsseas)
+```
+
+
+
+###### In this plot, when we look at the grey box to the right of the seasonal panel, we can see that variation is larger than in the data, therefore seasonal variability depends on the variability of the data itself. On the other hand, the trend panel's grey box to the right shows slightly larger variability than that of the data, which indicates the presnce of a trend.  
+
+```{r}
+fit <- stl(ukcars, s.window=5)
+plot(ukcars, col="gray",
+     main="UK cars",
+     ylab="New cars in the UK", xlab="")
+lines(fit$time.series[,2],col="red",ylab="Trend")
+```
